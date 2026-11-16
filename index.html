@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon Bilan Bien-être</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#17223b;--mute:#5b6577;--line:#d9e0dc;--main:#23306b;--on-main:#fff;--sun:#f2a900;--leaf:#2e7d4f;--warn:#fdecec;--warn-ink:#8a1c1c;--soft:#e8f2ec;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1624;--card:#18223a;--ink:#eef2f8;--mute:#a4afc4;--line:#2c3855;--main:#f2a900;--on-main:#17223b;--sun:#f2a900;--leaf:#6fcf97;--warn:#3a1d1d;--warn-ink:#ffb4b4;--soft:#16301f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1624;--card:#18223a;--ink:#eef2f8;--mute:#a4afc4;--line:#2c3855;--main:#f2a900;--on-main:#17223b;--sun:#f2a900;--leaf:#6fcf97;--warn:#3a1d1d;--warn-ink:#ffb4b4;--soft:#16301f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Trebuchet MS","Segoe UI",system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:30px;line-height:1.15;margin:8px 0 10px;font-weight:800}
+h2{font-size:22px;line-height:1.25;margin:0 0 12px;font-weight:800}
+p{margin:0 0 12px}
+.mute{color:var(--mute);font-size:15px}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;background:var(--sun);transition:width .3s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;font:inherit;cursor:pointer;min-height:56px}
+.opt:hover{border-color:var(--main)}
+.opt.on{border-color:var(--main);background:var(--soft)}
+.opt b{display:block}
+.opt small{color:var(--mute);font-size:14px}
+.ico{font-size:26px;flex:none;width:34px;text-align:center}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;background:var(--main);color:var(--on-main);border:0;border-radius:14px;padding:15px;font:inherit;font-weight:800;cursor:pointer;margin-top:8px}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.wa{background:#1f9d55;color:#fff}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.stop{background:var(--warn);color:var(--warn-ink);border-radius:16px;padding:18px;margin-bottom:14px}
+.gauge{display:flex;align-items:center;gap:16px}
+.gauge svg{flex:none}
+.tip{padding:10px 12px;border-left:4px solid var(--sun);background:var(--soft);border-radius:8px;margin-bottom:8px;font-size:16px}
+dl{margin:0}dt{font-weight:800;margin-top:10px}dd{margin:0;color:var(--mute)}
+.fine{font-size:13px;color:var(--mute);margin-top:18px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+var WA_NUMBER = "2250747127828";
+
+var blocks = [
+ {id:"preg",t:"Je suis enceinte ou j’allaite",i:"🤰"},
+ {id:"minor",t:"J’ai moins de 18 ans",i:"🧒"},
+ {id:"ill",t:"Je suis suivi(e) pour une maladie",s:"diabète, tension, reins, foie, cœur, cancer, épilepsie, VIH…",i:"🩺"},
+ {id:"med",t:"Je prends un traitement médical",i:"💊"},
+ {id:"none",t:"Aucun de ces cas",i:"✅"}
+];
+var goals = [
+ {id:"energie",t:"Plus d’énergie",s:"Je me sens souvent fatigué(e)",i:"⚡"},
+ {id:"digestion",t:"Digestion et ventre léger",s:"Ballonnements, transit paresseux",i:"🍋"},
+ {id:"poids",t:"Perdre un peu de poids",s:"Avec une meilleure hygiène de vie",i:"🏃"},
+ {id:"homme",t:"Vitalité (homme)",s:"Forme et tonus au quotidien",i:"🧔"},
+ {id:"femme",t:"Vitalité (femme)",s:"Forme et tonus au quotidien",i:"👩"},
+ {id:"autre",t:"Autre / je ne sais pas",s:"Je veux juste des conseils",i:"🤔"}
+];
+var qs = [
+ {q:"Combien d’eau bois-tu par jour ?",o:["Moins d’1 litre","1 à 1,5 litre","Plus de 1,5 litre"],tip:"Vise au moins 1,5 litre d’eau par jour. Garde une bouteille avec toi, surtout par forte chaleur."},
+ {q:"Combien d’heures dors-tu par nuit ?",o:["Moins de 6 h","6 à 7 h","7 h ou plus"],tip:"Essaie de te coucher à heure fixe et de couper le téléphone 30 minutes avant de dormir."},
+ {q:"Combien de temps bouges-tu par jour (marche, sport, travail physique) ?",o:["Presque pas","15 à 30 minutes","30 minutes ou plus"],tip:"Une marche de 30 minutes par jour change déjà beaucoup de choses. Commence par 10 minutes."}
+];
+var prods = {
+ energie:{n:"Miiralife",d:"Complément alimentaire quotidien (gingembre noir, moringa, nid d’oiseau) pour soutenir le bien-être général et l’énergie.",u:"1 sachet par jour, le matin ou le soir. Verse la poudre sous la langue, attends 2 à 3 minutes, puis avale la salive.",p:"35 000 F le paquet de 24 sachets (prix partenaire)",c:"Non recommandé aux femmes enceintes."},
+ digestion:{n:"Miira-Phyll",d:"Boisson au citron et à la chlorophylle, avec psyllium et séné, pour soutenir la digestion et le confort intestinal.",u:"1 à 2 sachets par jour dans 110 ml d’eau. Il accélère le transit : prévois l’accès aux toilettes. Prends-le en cure courte, pas en continu.",p:"17 500 F le paquet de 12 sachets (prix partenaire)",c:"Contient du séné (laxatif). Arrête en cas de diarrhée ou de douleurs au ventre."},
+ poids:{n:"Miira-Curve",d:"Boisson saveur banane-chocolat qui accompagne une démarche de gestion du poids. Elle ne remplace ni l’alimentation équilibrée ni l’activité physique.",u:"1 sachet par jour avant ton activité physique. Verse la poudre sous la langue, attends 2 à 3 minutes, puis avale la salive.",p:"35 000 F le paquet de 24 sachets (prix partenaire)",c:"Non recommandé aux femmes enceintes. Sans alimentation saine et sport, ne compte pas sur un effet."},
+ homme:{n:"Miira-Lanang Advanced",d:"Café pour homme (gingembre, saw palmetto) pour soutenir la vitalité et le bien-être masculin.",u:"1 à 2 sachets par jour dans de l’eau chaude, à tout moment.",p:"17 500 F le paquet (prix partenaire)",c:"Produit réservé aux hommes."},
+ femme:{n:"Miira-Wedok Advanced",d:"Café pour femme (bétel, manjakani, labisia pumila) pour soutenir la vitalité et le bien-être féminin.",u:"1 à 2 sachets par jour dans de l’eau chaude, à tout moment.",p:"17 500 F le paquet (prix partenaire)",c:"Produit réservé aux femmes. Non adapté si tu es enceinte."}
+};
+var S = {step:0,blocks:[],goal:null,ans:[]};
+var app = document.getElementById("app");
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function bar(n,t){return '<div class="bar" role="progressbar" aria-valuenow="'+n+'" aria-valuemax="'+t+'"><i style="width:'+Math.round(n/t*100)+'%"></i></div>'}
+function go(n){S.step=n;render();window.scrollTo(0,0)}
+function reset(){S={step:0,blocks:[],goal:null,ans:[]};render();window.scrollTo(0,0)}
+function toggle(id){
+ var b=S.blocks;
+ if(id==="none"){S.blocks=b.indexOf("none")>-1?[]:["none"]}
+ else{b=b.filter(function(x){return x!=="none"});var k=b.indexOf(id);if(k>-1)b.splice(k,1);else b.push(id);S.blocks=b}
+ render()
+}
+function track(n){try{if(window.goatcounter&&window.goatcounter.count){window.goatcounter.count({path:"clic-"+n,title:n,event:true})}}catch(e){}}
+function share(){track("partage");var u=location.href.split("#")[0];window.open("https://wa.me/?text="+encodeURIComponent("Fais ton bilan bien-être gratuit en 2 minutes : "+u),"_blank")}
+function notice(){var b=S.blocks,m="";
+ if(b.indexOf("preg")>-1)m+='<div class="tip">Les produits Revoobit ne sont pas recommandés pendant la grossesse ni l’allaitement.</div>';
+ if(b.indexOf("ill")>-1||b.indexOf("med")>-1)m+='<div class="tip">Tu peux continuer ce bilan. N’arrête jamais ton traitement de l’hôpital : un complément ne le remplace pas. Préviens ton médecin ou ton pharmacien avant de commencer.</div>';
+ if(b.indexOf("minor")>-1)m+='<div class="tip">Pour un mineur, l’accord d’un parent ou tuteur est nécessaire. Pour un jeune enfant, demande l’avis d’un pédiatre ou d’un pharmacien avant de donner un produit.</div>';
+ return m}
+function foot(){return '<p class="fine">Ces produits sont des compléments alimentaires. Ils ne soignent aucune maladie et ne remplacent pas un traitement médical. Si un symptôme dure, consulte un professionnel de santé.</p>'}
+function render(){
+ var h="";
+ if(S.step===0){
+  h='<p class="mute">Bilan en 2 minutes · gratuit</p><h1>Fais le point sur ton bien-être</h1><p>Réponds à quelques questions, reçois ton score et des conseils simples pour ton quotidien. Aucun diagnostic, aucune promesse de guérison.</p><button class="btn" onclick="go(1)">Commencer</button>'+foot();
+ }
+ else if(S.step===1){
+  h=bar(1,5)+'<h2>D’abord, ta sécurité</h2><p class="mute">Coche ce qui te concerne.</p>';
+  blocks.forEach(function(b){var on=S.blocks.indexOf(b.id)>-1;h+='<button class="opt'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="toggle(\''+b.id+'\')"><span class="ico">'+b.i+'</span><span><b>'+b.t+'</b>'+(b.s?'<small>'+b.s+'</small>':'')+'</span></button>'});
+  h+=notice()+'<button class="btn" '+(S.blocks.length?'':'disabled')+' onclick="'+(S.blocks.indexOf("preg")>-1?'go(9)':'go(2)')+'">Continuer</button>';
+ }
+ else if(S.step===9){
+  h='<div class="stop"><h2>Parle d’abord à un professionnel de santé</h2><p>Dans ta situation, un complément alimentaire peut ne pas convenir ou interagir avec un traitement. Je ne te propose donc aucun produit.</p><p>Ne change ni n’arrête jamais un traitement sans l’avis de ton médecin.</p></div><div class="card"><h2>Ce qui aide quand même</h2><div class="tip">Bois de l’eau régulièrement tout au long de la journée.</div><div class="tip">Dors à heures régulières, sans écran avant de te coucher.</div><div class="tip">Marche un peu chaque jour si ton médecin est d’accord.</div><div class="tip">Mange varié : légumes, fruits, poisson, moins de sucre et de friture.</div></div><button class="btn alt" onclick="reset()">Recommencer</button>';
+ }
+ else if(S.step===2){
+  h=bar(2,5)+'<h2>Que veux-tu améliorer en priorité ?</h2>';
+  goals.forEach(function(g){var on=S.goal===g.id;h+='<button class="opt'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="S.goal=\''+g.id+'\';render()"><span class="ico">'+g.i+'</span><span><b>'+g.t+'</b><small>'+g.s+'</small></span></button>'});
+  h+='<button class="btn" '+(S.goal?'':'disabled')+' onclick="go(3)">Continuer</button>';
+ }
+ else if(S.step>=3&&S.step<=5){
+  var k=S.step-3,q=qs[k];
+  h=bar(S.step,5)+'<h2>'+q.q+'</h2>';
+  q.o.forEach(function(o,i){h+='<button class="opt" onclick="S.ans['+k+']='+i+';go('+(S.step+1)+')"><span><b>'+o+'</b></span></button>'});
+ }
+ else{
+  var sum=S.ans.reduce(function(a,b){return a+b},0),score=Math.round(sum/6*100);
+  var lvl=score>=80?"Bonnes habitudes":score>=40?"Tu peux progresser":"Quelques bases à renforcer";
+  var C=2*Math.PI*42,off=C*(1-score/100);
+  h='<h2>Ton score bien-être</h2><div class="card gauge"><svg width="110" height="110" viewBox="0 0 110 110" role="img" aria-label="Score '+score+' sur 100"><circle cx="55" cy="55" r="42" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="55" cy="55" r="42" fill="none" stroke="var(--sun)" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 55 55)"/><text x="55" y="62" text-anchor="middle" font-size="26" font-weight="800" fill="var(--ink)">'+score+'</text></svg><div><b>'+lvl+'</b><p class="mute" style="margin:4px 0 0">Score sur tes habitudes : eau, sommeil, mouvement.</p></div></div>';
+  var tips="";qs.forEach(function(q,i){if(S.ans[i]<2)tips+='<div class="tip">'+q.tip+'</div>'});
+  h+='<div class="card"><h2>Tes conseils gratuits</h2>'+(tips||'<div class="tip">Continue comme ça : tes habitudes de base sont solides.</div>')+'</div>';
+  var p=prods[S.goal];
+  if(p){
+   h+=notice()+'<div class="card"><h2>Pour ton objectif : '+p.n+'</h2><p>'+p.d+'</p><dl><dt>Comment le prendre</dt><dd>'+p.u+'</dd><dt>À savoir</dt><dd>'+p.c+'</dd><dt>Prix (dès ton 2e achat)</dt><dd>'+p.p+'</dd></dl></div>';
+   h+='<div class="card"><h2>Comment ça marche pour acheter ?</h2><p><b>Premier achat : 27 000 F.</b> Tu prends d’abord un détox, le pack Revookit : 1 paquet de Miira-Phyll, et tu reçois ton compte personnel Revoobit.</p><p class="mute">Ensuite, tes achats sont à moindre coût : Miira-Cell+, Miiralife et Miira-Curve à 35 000 F le paquet ; Miira-Phyll, Miira-Lanang et Miira-Wedok à 17 500 F ; Miira Coffee à 27 000 F.</p></div>';
+   var msg=encodeURIComponent("Bonjour, j’ai fait le Bilan Bien-être (score "+score+"/100). Mon objectif : "+goals.filter(function(g){return g.id===S.goal})[0].t+". Je voudrais des infos sur "+p.n+", le prix et le pack d’adhésion.");
+   h+='<a class="btn wa" href="https://wa.me/'+WA_NUMBER+'?text='+msg+'" onclick="track('conseiller')" target="_blank" rel="noopener">Parler à un conseiller sur WhatsApp</a>';
+  } else {
+   h+='<div class="card"><p>Tu n’as pas d’objectif précis : continue avec les conseils ci-dessus. Si tu veux en savoir plus sur les produits, tu peux poser tes questions à un conseiller.</p></div><a class="btn wa" href="https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent("Bonjour, j’ai fait le Bilan Bien-être (score "+score+"/100) et je voudrais des informations.")+'" onclick="track('conseiller')" target="_blank" rel="noopener">Poser une question sur WhatsApp</a>';
+  }
+  h+='<button class="btn alt" onclick="share()">Inviter mes amis sur WhatsApp</button><button class="btn alt" onclick="reset()">Refaire le bilan</button>'+foot();
+ }
+ app.innerHTML=h;
+}
+render();
+</script>
+<script data-goatcounter="https://mohalab-bilan.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
